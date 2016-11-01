@@ -70,11 +70,14 @@ def showGenre():
 def showEntries(sContent = False, sGui = False):
     oGui = sGui if sGui else cGui()
     params = ParameterHandler()
+    sHtmlContent = ''
     if sContent:
         sHtmlContent = sContent
     else:
-        oRequestHandler = cRequestHandler(params.getValue('sUrl'))
-        sHtmlContent = oRequestHandler.request()
+        sUrl = params.getValue('sUrl')
+        if sUrl:
+            oRequestHandler = cRequestHandler(sUrl, ignoreErrors = (sGui is not False))
+            sHtmlContent = oRequestHandler.request()
     # Grab the thumbnail
     pattern = '<div class="screenshot".*?<a href="([^"]+)"'
     # Grab the name and link
@@ -151,7 +154,7 @@ def showSearch():
     oGui = cGui()
     sSearchText = oGui.showKeyBoard()
     if not sSearchText: return
-    _search(oGui, sSearchText)
+    _search(False, sSearchText)
     oGui.setEndOfDirectory()
 
 def showMovieSearch():
@@ -187,12 +190,12 @@ def getHosterName(name):
 # Search using the requested string sSearchText
 def _search(oGui, sSearchText):
     if not sSearchText: return
-    data = getSearchResult(sSearchText, URL_MOVIES)
-    data += getSearchResult(sSearchText, URL_SHOWS)
+    data = getSearchResult(sSearchText, URL_MOVIES, (oGui is not False))
+    data += getSearchResult(sSearchText, URL_SHOWS, (oGui is not False))
     showEntries(data, oGui)
 
-def getSearchResult(sSearchText, url):
-    oRequest = cRequestHandler(url)
+def getSearchResult(sSearchText, url, ignoreErrors = False):
+    oRequest = cRequestHandler(url, ignoreErrors = ignoreErrors)
     oRequest.addParameters('query', sSearchText)
     oRequest.addParameters('a', '2')
     return oRequest.request()

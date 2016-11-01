@@ -1,6 +1,7 @@
 <settings> 
   <category label="30021">
     <setting default="Off" id="UpdateSetting" label="30010" type="labelenum" values="Stable|Beta|Nightly|Off" />
+    <setting default="On" id="updateUrlResolver" label="30016" type="labelenum" values="On|Off" />
     <setting default="false" id="SettingsFolder" label="30012" type="bool" />
     <setting default="true" id="GlobalSearchPosition" label="30011" type="bool" />
     <setting default="dialog" id="hosterSelect" label="30005" type="labelenum" values="Dialog|Auto|List" />
@@ -11,52 +12,72 @@
     <setting default="false" id="metahandler" label="30004" type="bool" />
     <setting default="false" enable="!eq(-1,false)" id="metaOverwrite" label="30008" type="bool" />
     <setting default="600" id="cacheTime" label="30006" type="number" />
+    <setting default="30" id="requestTimeout" label="30015" type="number" />
     <setting default="false" id="showAdult" label="30003" type="bool" />
     <setting type="sep" />
   </category> 
   <category label="30022">
 	<setting label="AnimeLoads" type="lsep" />
-	<setting default="false" id="plugin_anime-loads_org" label="AnimeLoads" type="bool" />
+	<setting default="false" id="plugin_anime-loads_org" label="30014" type="bool" />
 	<setting label="BurningSeries" type="lsep" />
-	<setting default="false" id="plugin_burning_series_org" label="BurningSeries" type="bool" />
-	<setting label="CineDream" type="lsep" />
-	<setting default="false" id="plugin_cine-dream_net" label="CineDream" type="bool" />
+	<setting default="false" id="plugin_burning_series_org" label="30014" type="bool" />
 	<setting label="Cine" type="lsep" />
-	<setting default="false" id="plugin_cine_to" label="Cine" type="bool" />
+	<setting default="false" id="plugin_cine_to" label="30014" type="bool" />
+	<setting label="Cineplex" type="lsep" />
+	<setting default="false" id="plugin_cineplex_tv" label="30014" type="bool" />
 	<setting label="DirectDownLoad" type="lsep" />
-	<setting default="false" id="plugin_ddl_me" label="DirectDownLoad" type="bool" />
+	<setting default="false" id="plugin_ddl_me" label="30014" type="bool" />
 	<setting default="de.ddl.me" enable="!eq(-1,false)" id="ddl_me-domain" label="DirectDownLoad domain" type="labelenum" values="de.ddl.me|en.ddl.me" />
-	<setting label="Die Filme" type="lsep" />
-	<setting default="false" id="plugin_diefilme_net" label="Die Filme" type="bool" />
+	<setting label="Dokustreamer" type="lsep" />
+	<setting default="false" id="plugin_dokustreamer_de" label="30014" type="bool" />
+	<setting label="FilmeStreamz" type="lsep" />
+	<setting default="false" id="plugin_filme-streamz_com" label="30014" type="bool" />
 	<setting label="FilmPalast" type="lsep" />
-	<setting default="false" id="plugin_filmpalast_to" label="FilmPalast" type="bool" />
+	<setting default="false" id="plugin_filmpalast_to" label="30014" type="bool" />
+	<setting label="Flimmerstube" type="lsep" />
+	<setting default="false" id="plugin_flimmerstube_com" label="30014" type="bool" />
 	<setting label="Goldstream" type="lsep" />
-	<setting default="false" id="plugin_goldstream_org" label="Goldstream" type="bool" />
-	<setting label="Gute Filme" type="lsep" />
-	<setting default="false" id="plugin_gute-filme_to" label="Gute Filme" type="bool" />
+	<setting default="false" id="plugin_goldstream_org" label="30014" type="bool" />
 	<setting label="HDfilme" type="lsep" />
-	<setting default="false" id="plugin_hdfilme_tv" label="HDfilme" type="bool" />
+	<setting default="false" id="plugin_hdfilme_tv" label="30014" type="bool" />
+	<setting label="KinoStreamz" type="lsep" />
+	<setting default="false" id="plugin_kino-streamz_com" label="30014" type="bool" />
 	<setting label="KinoX" type="lsep" />
-	<setting default="false" id="plugin_kinox_to" label="KinoX" type="bool" />
+	<setting default="false" id="plugin_kinox_to" label="30014" type="bool" />
 	<setting default="kinox.to" enable="!eq(-1,false)" id="kinox_to-domain" label="Kinox domain" type="labelenum" values="kinox.to|kinox.me|kinox.tv" />
 	<setting label="KinoKiste" type="lsep" />
-	<setting default="false" id="plugin_kkiste_to" label="KinoKiste" type="bool" />
+	<setting default="false" id="plugin_kkiste_to" label="30014" type="bool" />
 	<setting label="Movie4k" type="lsep" />
-	<setting default="false" id="plugin_movie4k_to" label="Movie4k" type="bool" />
+	<setting default="false" id="plugin_movie4k_to" label="30014" type="bool" />
 	<setting default="movie4k.to" enable="!eq(-1,false)" id="movie4k_to-domain" label="Movie4k domain" type="labelenum" values="movie4k.to|movie4k.me|movie4k.tv" />
 	<setting label="MoviesEver" type="lsep" />
-	<setting default="false" id="plugin_moviesever_com" label="MoviesEver" type="bool" />
+	<setting default="false" id="plugin_moviesever_com" label="30014" type="bool" />
+	<setting label="MyKino" type="lsep" />
+	<setting default="false" id="plugin_mykino_to" label="30014" type="bool" />
+	<setting label="SerienStream" type="lsep" />
+	<setting default="false" id="plugin_serienstream_to" label="30014" type="bool" />
 	<setting label="SeriesEver" type="lsep" />
-	<setting default="false" id="plugin_seriesever_net" label="SeriesEver" type="bool" />
+	<setting default="false" id="plugin_seriesever_net" label="30014" type="bool" />
+	<setting label="StreamIt" type="lsep" />
+	<setting default="false" id="plugin_streamit_ws" label="30014" type="bool" />
+	<setting label="StreamKisteTV" type="lsep" />
+	<setting default="false" id="plugin_streamkiste_tv" label="30014" type="bool" />
 	<setting label="SzeneStreams" type="lsep" />
-	<setting default="false" id="plugin_szene-streams_com" label="SzeneStreams" type="bool" />
+	<setting default="false" id="plugin_szene-streams_com" label="30014" type="bool" />
+	<setting label="Tata" type="lsep" />
+	<setting default="false" id="plugin_tata_to" label="30014" type="bool" />
+	<setting label="Video2k" type="lsep" />
+	<setting default="false" id="plugin_video2k_is" label="30014" type="bool" />
+	<setting label="Video4k" type="lsep" />
+	<setting default="false" id="plugin_video4k_to" label="30014" type="bool" />
 </category>
   <category label="Views">
     <setting default="false" id="auto-view" label="Automatische Views aktivieren" type="bool" />
-    <setting default="503" enable="!eq(-1,false)" id="movies-view" label="Film-View" type="number" />
-    <setting default="503" enable="!eq(-2,false)" id="tvshows-view" label="Serien-View" type="number" />
-    <setting default="504" enable="!eq(-3,false)" id="seasons-view" label="Staffel-View" type="number" />
-    <setting default="504" enable="!eq(-4,false)" id="episodes-view" label="Episoden-View" type="number" />
+    <setting default="55" enable="!eq(-1,false)" id="files-view" label="Default-View" type="number" />
+    <setting default="503" enable="!eq(-2,false)" id="movies-view" label="Film-View" type="number" />
+    <setting default="503" enable="!eq(-3,false)" id="tvshows-view" label="Serien-View" type="number" />
+    <setting default="504" enable="!eq(-4,false)" id="seasons-view" label="Staffel-View" type="number" />
+    <setting default="504" enable="!eq(-5,false)" id="episodes-view" label="Episoden-View" type="number" />
   </category>
   <category label="30024">
     <setting label="30080" type="sep" />

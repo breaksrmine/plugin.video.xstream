@@ -6,6 +6,7 @@ from resources.lib.parser import cParser
 from resources.lib import logger
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib.util import cUtil
+from cCFScrape import cCFScrape
 import re, json
 
 # Plugin-Eigenschaften
@@ -34,6 +35,9 @@ URL_PARMS_ORDER_HDRATE = 'order_f=rate'
 URL_PARMS_ORDER_HDRATE_ASC = URL_PARMS_ORDER_HDRATE +'&order_d=asc'
 
 QUALITY_ENUM = {'240':0, '360':1, '480':2, '720':3, '1080':4}
+
+# User-Agent für HTTP-Requests
+HD_USER_AGENT = 'Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/36.0'
 
 def load():
     # Logger-Eintrag
@@ -95,30 +99,30 @@ def showGenreList():
     entryUrl = params.getValue('sUrl')
 
     # Movie-Seite laden
-    sHtmlContent = cRequestHandler(entryUrl).request()
+    sHtmlContent = _getRequestHandler(entryUrl).request()
 
-    # Select für Generes Laden
+    # Select für Generes-Container
     pattern = '<select[^>]*name="cat"[^>]*>(.*?)</select[>].*?'
 
     # Regex parsen
-    aResult = cParser().parse(sHtmlContent, pattern)
+    isMatch, sContainer = cParser().parseSingleResult(sHtmlContent, pattern)
 
     # Nichts gefunden? => raus hier
-    if not aResult[0]:
+    if not isMatch:
         return
 
     # Filter für Genres
     pattern = '<option[^>]*value="(\d[^ ]*)"[^>]*>(.*?)</option[>].*?'
     
     # Regex parsen
-    aResult = cParser().parse(aResult[1][0], pattern)
+    isMatch, aResult = cParser().parse(sContainer, pattern)
 
     # Nichts gefunden? => raus hier
-    if not aResult[0]:
+    if not isMatch:
         return
 
     # Alle Genres durchlaufen und Liste erzeugen
-    for sID,sGenre in aResult[1]:
+    for sID,sGenre in aResult:
         params.setParam('sUrl',entryUrl + '&cat=' + sID)
         oGui.addFolder(cGuiElement(sGenre.strip(), SITE_IDENTIFIER, 'showEntries'), params)
     
@@ -137,22 +141,20 @@ def showEntries(entryUrl = False, sGui = False):
 
     # Aktuelle Seite ermitteln und ggf. URL anpassen
     iPage = int(params.getValue('page'))
-    oRequest = cRequestHandler(entryUrl + '&per_page=' + str(iPage * 50) if iPage > 0 else entryUrl)
 
     # Daten ermitteln
+    oRequest = _getRequestHandler(entryUrl + '&per_page=' + str(iPage * 50) if iPage > 0 else entryUrl, (sGui is not False))
     sHtmlContent = oRequest.request()
     
     # Filter out the main section
     pattern = '<ul class="products row">(.*?)</ul>'
-    aResult = cParser().parse(sHtmlContent, pattern)
+    parser = cParser()
+    isMatch, sMainContent = parser.parseSingleResult(sHtmlContent, pattern)
 
     # Funktion verlassen falls keine Daten ermittelt werden konnten
-    if not aResult[0] or not aResult[1][0]: 
+    if not isMatch: 
         if not sGui: oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
         return
-
-    # Content festlegen der geparst werden soll
-    sMainContent = aResult[1][0]
 
     # URL ermitteln
     pattern = '<div[^>]*class="box-product clearfix"[^>]*>\s*?'
@@ -172,18 +174,18 @@ def showEntries(entryUrl = False, sGui = False):
     pattern += '<div[^>]*class="popover-content"[^>]*>\s*<p[^>]*>([^<>]*)</p>'
 
     # HTML parsen
-    aResult = cParser().parse(sMainContent, pattern)
+    isMatch, aResult = parser.parse(sMainContent, pattern)
 
     # Kein Einträge gefunden? => Raus hier
-    if not aResult[0]: 
+    if not isMatch: 
         if not sGui: oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
         return
 
     # Listengröße ermitteln
-    total = len (aResult[1])
+    total = len(aResult)
 
     # Alle Ergebnisse durchlaufen
-    for sUrl, sThumbnail, sEpisodeNrs, sName, sDesc in aResult[1]:
+    for sUrl, sThumbnail, sEpisodeNrs, sName, sDesc in aResult:
         # Bei Filmen das Jahr vom Title trennen
         aYear = re.compile("(.*?)\((\d*)\)").findall(sName)
         iYear = False
@@ -211,6 +213,7 @@ def showEntries(entryUrl = False, sGui = False):
 
         # Thumbnail und Beschreibung für Anzeige anpassen
         sThumbnail = sThumbnail.replace('_thumb', '')
+        sThumbnail = cCFScrape().createUrl(sThumbnail, oRequest)
         sDesc = cUtil().unescape(sDesc.decode('utf-8')).encode('utf-8').strip()
 
         # Falls vorhanden Jahr ergänzen
@@ -232,11 +235,11 @@ def showEntries(entryUrl = False, sGui = False):
     pattern += '<li[^>]*class="active"[^>]*><a>(\d*)</a>.*</ul>'
 
     # Seite parsen
-    aResult = cParser().parse(sHtmlContent, pattern)
+    isMatch, sPageNr = parser.parseSingleResult(sHtmlContent, pattern)
 
     # Falls ein Ergebniss gefunden wurden "Next-Page" ergänzen
-    if aResult[0] and aResult[1][0]:
-        params.setParam('page', int(aResult[1][0]))
+    if isMatch:
+        params.setParam('page', int(sPageNr))
         oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
 
     # Liste abschließen und View setzen
@@ -252,14 +255,14 @@ def showHosters():
     entryUrl = params.getValue('entryUrl').replace("-info","-stream")
 
     # Seite abrufen
-    sHtmlContent = cRequestHandler(entryUrl).request()
+    sHtmlContent = _getRequestHandler(entryUrl).request()
 
     # Prüfen ob Episoden gefunden werden
     pattern = '<a[^>]*episode="([^"]*)"[^>]*href="([^"]*)"[^>]*>'
-    aResult = cParser().parse(sHtmlContent, pattern)
+    isMatch, aResult = cParser().parse(sHtmlContent, pattern)
 
     # Prüfen ob Einträge vorliegen
-    if not aResult[0]:
+    if not isMatch:
         return
 
     # Ermitteln ob es sich um eine Serie handelt
@@ -267,7 +270,7 @@ def showHosters():
 
     # Falls Episoden gefunden worden => Episodenauswahl vorschalten
     if isTvshowEntry == 'True':
-        showEpisodes(aResult[1], params)
+        showEpisodes(aResult, params)
     else:
         return getHosters(entryUrl)
 
@@ -311,18 +314,18 @@ def getHosters(sUrl = False):
     sUrl = sUrl if sUrl else params.getValue('sUrl')
 
     # Seite abrufen
-    sHtmlContent = cRequestHandler(sUrl).request()
+    sHtmlContent = _getRequestHandler(sUrl).request()
 
     # Servername und Episoden pro Server ermitteln
-    pattern = "[^>]*>([a-zA-Z0-9_ ]+)</div>\s+<ul[^>]*class=['\"]list-inline list-film['\"][^>]*>(.*?)</ul>"
+    pattern = "<ul[^>]*class=['\"]list-inline list-film['\"][^>]*>.*?([a-zA-Z0-9_ ]+)</div>(.*?)</ul>"
     parser = cParser()
-    aResult = parser.parse(sHtmlContent, pattern)
+    isMatch, aResult = parser.parse(sHtmlContent, pattern)
 
     # Hosterliste initialisieren
     hosters = []
 
     # Prüfen ob Server ermittelt werden konnte
-    if aResult[0]:
+    if isMatch:
         # Prüfen ob eine direkte-Episode gewünscht ist
         aMatches = re.compile("episode=(\d+)&").findall(sUrl)
 
@@ -330,14 +333,14 @@ def getHosters(sUrl = False):
         sEpisode = "\d+" if not aMatches else aMatches[0]
 
         # Server-Block durchlaufen
-        for sServername, sInnerHtml in aResult[1]:
+        for sServername, sInnerHtml in aResult:
             # Nur Links für die gewünschte Episode ermitteln
-            pattern = "<a[^>]*href=['\"]([^'\"]*)['\"][^>]*>\s+(?:%s|HD|SD)\s+</a>" % sEpisode
-            aResultLinks = parser.parse(sInnerHtml, pattern, ignoreCase = True)
+            pattern = "<a[^>]*href=['\"]([^'\"]*)['\"][^>]*>\s+(?:%s|HD|SD|Audio Mic|Bluray)\s+</a>" % sEpisode
+            isMatch, sServerUrl = parser.parseSingleResult(sInnerHtml, pattern)
 
             # Wurde ein Link gefunden? => Einträge zur Gesamtliste hinzufügen
-            if aResultLinks[0]:
-                hosters.extend(_getHostFromUrl(aResultLinks[1][0], sServername))
+            if isMatch:
+                hosters.extend(_getHostFromUrl(sServerUrl, sServername))
 
     # Sind Hoster vorhanden? => Nachfolgefunktion ergänzen
     if hosters:
@@ -347,14 +350,14 @@ def getHosters(sUrl = False):
 
 def _getHostFromUrl(sUrl, sServername):
     # Seite abrufen
-    sHtmlContent = cRequestHandler(sUrl).request()
+    sHtmlContent = _getRequestHandler(sUrl).request()
 
     # JSon mit den Links ermitteln
     pattern = '(\[{".*?}\])'
-    aResult = cParser().parse(sHtmlContent, pattern)
+    isMatch, sJson = cParser().parseSingleResult(sHtmlContent, pattern)
 
     # Nichts gefunden? => Raus hier
-    if not aResult[0] or not aResult[1][0]: 
+    if not isMatch: 
         logger.info("hoster pattern did not match")
         return []
 
@@ -362,7 +365,7 @@ def _getHostFromUrl(sUrl, sServername):
     hosters = []
 
     # Alle Einträge durchlaufen und Hostereintrag erstellen
-    for entry in json.loads(aResult[1][0]):
+    for entry in json.loads(sJson):
         if 'file' not in entry or 'label' not in entry: continue
         sLabel = sServername + ' - ' + entry['label'].encode('utf-8')
         hoster = dict()
@@ -370,7 +373,6 @@ def _getHostFromUrl(sUrl, sServername):
         if entry['label'].encode('utf-8')[:-1] in QUALITY_ENUM:
             hoster['quality'] = QUALITY_ENUM[entry['label'].encode('utf-8')[:-1]]
         hoster['name'] = sLabel
-        hoster['resolveable'] = True
         hosters.append(hoster)
 
     # Hoster zurückgeben
@@ -387,7 +389,7 @@ def play(sUrl = False):
     results = []
     result = {}
     result['streamUrl'] = sUrl
-    result['resolved'] = True
+    result['resolved'] = False
     results.append(result)
 
     # Ergebniss zurückliefern
@@ -407,7 +409,8 @@ def showSearch():
     # Suche durchführen
     _search(False, sSearchText)
 
-    #Liste abschließen
+    #Liste abschließen und View setzen
+    oGui.setView()
     oGui.setEndOfDirectory()
 
 # Such-Funktion (z.b auch für Globale-Suche)
@@ -426,3 +429,9 @@ def _search(oGui, sSearchText):
 
     # URL-Übergeben und Ergebniss anzeigen
     showEntries(URL_SEARCH % sSearchText, oGui)
+
+# RequestHandler mit passenden User-Agent erzeugen
+def _getRequestHandler(sUrl, ignoreErrors = False):
+    oRequest = cRequestHandler(sUrl, ignoreErrors = ignoreErrors)
+    oRequest.addHeaderEntry('User-Agent', HD_USER_AGENT)
+    return oRequest

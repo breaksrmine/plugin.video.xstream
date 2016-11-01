@@ -105,7 +105,7 @@ def showEntries(entryUrl = False, sGui = False):
     params = ParameterHandler()
     if not entryUrl: entryUrl = params.getValue('sUrl')
     isSeason = params.exist('season')
-    sHtmlContent = cRequestHandler(entryUrl).request()
+    sHtmlContent = cRequestHandler(entryUrl, ignoreErrors = (sGui is not False)).request()
     pattern = '<h2[^>]*class="entry-title"[^>]*><a[^>]*href="([^"]+)[^>]*rel="bookmark"[^>]*>(.*?)</a></h2>.*?' # link / title
     pattern += '<p><p>(.*?)</p>' # Description
     parser = cParser()

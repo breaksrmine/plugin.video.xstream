@@ -3,8 +3,7 @@
 ![xStream logo](https://github.com/StoneOffStones/plugin.video.xstream/blob/wiki/graphics/website/logo/logo_512.png?raw=true)
 
 
-[![Join the chat at https://gitter.im/StoneOffStones/plugin.video.xstream](https://badges.gitter.im/StoneOffStones/plugin.video.xstream.svg)](https://gitter.im/StoneOffStones/plugin.video.xstream?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
+[![Join the chat at https://gitter.im/xStream-Kodi/Public](https://badges.gitter.im/xStream-Kodi/Public.svg)](https://gitter.im/xStream-Kodi/Public?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
 ## Inhaltsverzeichnis
@@ -49,27 +48,32 @@ Mit xStream ist es möglich Serien und Filme unterschiedlichster Streaming-Platt
 
 ### 1.1 Verfügbare Webseiten
 
-| Name           | Domain            | Status                 | Stand      |
+| Name           | Domain            | Verfügbarkeit          | Stand      |
 |:-------------- |:----------------- | :--------------------- | :--------- |
 | AnimeLoads     | anime-loads.org   | funktioniert           | 09.04.2016 |
 | BurningSeries  | bs.to             | funktioniert           | 09.04.2016 |
 | Cine           | cine.to           | funktioniert           | 25.05.2016 |
-| CineDream      | cine-dream.net    | funktioniert           | 21.06.2016 |
 | Cineplex       | cineplex.tv       | funktioniert           | 29.07.2016 |
-| Die Filme      | diefilme.net      | funktioniert           | 25.05.2016 |
 | DirectDownLoad | ddl.me            | funktioniert           | 09.04.2016 |
+| Dokustreamer   | dokustreamer.de   | funktioniert           | 28.08.2016 |
+| Filmmerstube   | filmmerstube.com  | funktioniert           | 21.08.2016 |
 | FilmPalast     | filmpalast.to     | funktioniert           | 09.04.2016 |
 | FilmeStreamz   | filme-streamz.com | funktioniert           | 29.07.2016 |
 | Goldstream     | goldstream.org    | funktioniert           | 23.06.2016 |
-| Gute Filme     | gute-filme.to     | funktioniert           | 09.04.2016 |
 | HDfilme        | hdfilme.tv        | funktioniert           | 09.04.2016 |
-| KinoX          | kinox.to          | funktioniert           | 09.04.2016 |
 | KinoKiste      | kkiste.to         | funktioniert teilweise | 09.04.2016 |
+| KinoStreamz    | kino-streamz.com  | funktioniert           | 07.08.2016 |
+| KinoX          | kinox.to          | funktioniert           | 09.04.2016 |
 | Movie4k        | movie4k.to        | funktioniert           | 09.04.2016 |
+| SerienStream   | serienstream.to   | funktioniert           | 26.10.2016 |
 | MoviesEver     | moviesever.com    | funktioniert teilweise | 09.04.2016 |
 | SeriesEver     | seriesever.net    | funktioniert           | 09.04.2016 |
-| StreamTausch   | streamtausch.tv   | funktioniert           | 29.07.2016 |
+| StreamIt       | streamit.ws       | funktioniert           | 19.09.2016 |
+| StreamKisteTV    | streamkiste.tv    | funktioniert           | 27.10.2016 |
 | SzeneStreams   | szene-streams.com | funktioniert           | 09.04.2016 |
+| Tata           | tata.to           | funktioniert           | 17.09.2016 |
+| Video2k        | video2k.is        | funktioniert           | 28.09.2016 |
+| Video4k        | video4k.to        | funktioniert           | 20.09.2016 |
 
 
 Empfehlungen und Vorschläge für neue Seiten können über das [Forum](http://xstream-addon.square7.ch) unter dem Bereich [Wünsche und Anregungen](http://xstream-addon.square7.ch/forumdisplay.php?fid=9) angefragt bzw. eingestellt werden. Die Intergration der gewünschten Seiten ist nicht selbsverständlich und erfolgt nicht automatisch!

@@ -7,69 +7,60 @@ from resources.lib import logger
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib.util import cUtil
 
+SITE_IDENTIFIER = 'kino-streamz_com'
+SITE_NAME = 'KinoStreamz'
+SITE_ICON = 'kino-streamz.png'
 
-SITE_IDENTIFIER = 'filme-streamz_com'
-SITE_NAME = 'FilmeStreamz'
-SITE_ICON = 'filme-streamz.png'
-
-URL_MAIN = 'http://www.filme-streamz.com/'
-URL_Filme = URL_MAIN + 'categorie/2/filme-im-stream-stream-p1.html'
-URL_Erfolgreichste = URL_MAIN + '/categorie/6/Erfolgreichste-Filmreihen-stream-stream-p1.html'
-URL_Kino = URL_MAIN + '/categorie/7/Neuerscheinungen-stream-p1.html'
-URL_SEARCH = URL_MAIN + '/?s=%s'
-
+URL_MAIN = 'http://kino-streamz.com/'
+URL_Filme = URL_MAIN + 'categorie/2/filme-stream-p1.html'
+URL_Kino = URL_MAIN + 'categorie/8/kinofilme-2016-online-stream-p1.html'
+URL_GENRE = URL_MAIN + 'genre'
+URL_SEARCH = URL_MAIN + '/?q=%s'
 
 def load():
     logger.info("Load %s" % SITE_NAME)
     oGui = cGui()
     params = ParameterHandler()
-    params.setParam('sUrl', URL_MAIN)
-    oGui.addFolder(cGuiElement('Alle Filme', SITE_IDENTIFIER, 'showEntries'), params)
+    params.setParam('sUrl', URL_Kino)
+    oGui.addFolder(cGuiElement('Kinofilme', SITE_IDENTIFIER, 'showEntries'), params)
     params.setParam('sUrl', URL_Filme)
     oGui.addFolder(cGuiElement('Filme', SITE_IDENTIFIER, 'showEntries'), params)
-    params.setParam('sUrl', URL_Erfolgreichste)
-    oGui.addFolder(cGuiElement('Erfolgreichste Filmreihen', SITE_IDENTIFIER, 'showEntries'), params)
-    params.setParam('sUrl', URL_Kino)
-    oGui.addFolder(cGuiElement('Kinofilme / Neuerscheinungen', SITE_IDENTIFIER, 'showEntries'), params)
     oGui.addFolder(cGuiElement('Genre', SITE_IDENTIFIER, 'showGenresList'), params)
     oGui.addFolder(cGuiElement('Suche', SITE_IDENTIFIER, 'showSearch'))
     oGui.setEndOfDirectory()
 
-
 def showGenresList():
     oGui = cGui()
     params = ParameterHandler()
-    sHtmlContent = cRequestHandler(URL_MAIN).request()
-    aResult = cParser().parse(sHtmlContent, '<li><a href="([^"]+)" class="rightsidemenu cat">([^"<]+)<')
+    sHtmlContent = cRequestHandler(URL_GENRE).request()
+    aResult = cParser().parse(sHtmlContent, '<a[^>]class="list-group-item"[^>]href="([^"]+)"><span[^>]class="badge">([^"<]+)</span>([^"<]+)')
     if aResult[0] and aResult[1][0]:
         total = len(aResult[1])
-        for sUrl, sName in aResult[1]:
+        for sUrl, sNr ,sName in aResult[1]:
             params.setParam('sUrl', URL_MAIN + sUrl)
-            oGui.addFolder(cGuiElement((sName), SITE_IDENTIFIER, 'showEntries'), params, True, total)
+            oGui.addFolder(cGuiElement((sName + ' (' + sNr + ')'), SITE_IDENTIFIER, 'showEntries'), params, True, total)
     oGui.setEndOfDirectory()
-
 
 def showEntries(entryUrl=False, sGui=False):
     oGui = sGui if sGui else cGui()
     params = ParameterHandler()
     if not entryUrl: entryUrl = params.getValue('sUrl')
     sHtmlContent = cRequestHandler(entryUrl, ignoreErrors = (sGui is not False)).request()
-    pattern = 'class="list_film.*?img src="([^"]+).*?\s=\s\'([^\']+).*?>([^"(]+).*?\(([^")]+)'
+    pattern = '">([^"]+)</div><a[^>]href="([^"]+)-([^"]+)-stream.*?src="([^"]+)"></a>[^>].*?">([^"<]+)'
     aResult = cParser().parse(sHtmlContent, pattern)
 
     if aResult[0] and aResult[1][0]:
         total = len(aResult[1])
-        util = cUtil()
-        for sThumbnail, sUrl, sName, sJahr in aResult[1]:
-            oGuiElement = cGuiElement(util.unescape(sName.decode('utf-8')).encode('utf-8'), SITE_IDENTIFIER,
-                                      'showHosters')
-            oGuiElement.setThumbnail(sThumbnail)
-            oGuiElement.setYear(sJahr)
-            oGuiElement.setMediaType('movie')
-            params.setParam('entryUrl', URL_MAIN + sUrl)
+        for sDesc, sUrl, sYear, sThumbnail, sName in aResult[1]:
+            oGuiElement = cGuiElement(cUtil().unescape(sName.decode('utf-8')).encode('utf-8'), SITE_IDENTIFIER, 'showHosters')
+            oGuiElement.setThumbnail(sThumbnail.decode('utf-8').encode('utf-8'))
+            oGuiElement.setDescription(cUtil().removeHtmlTags(sDesc))
+            oGuiElement.setYear(sYear)
+            params.setParam('sName', sName)
+            params.setParam('entryUrl', URL_MAIN + sUrl + '-' + sYear + '-stream')
             oGui.addFolder(oGuiElement, params, False, total)
 
-    pattern = '"><a href="([^"]+)"([^>]+)?>&raquo;'
+    pattern = '"><a[^>]href="([^"]+)"([^>]+)?>&raquo;'
     aResult = cParser().parse(sHtmlContent, pattern)
     if aResult[0] and aResult[1][0] and 'void' not in aResult[1][0][0]:
         params.setParam('sUrl', URL_MAIN + aResult[1][0][0])
@@ -78,16 +69,15 @@ def showEntries(entryUrl=False, sGui=False):
         oGui.setView('movies')
         oGui.setEndOfDirectory()
 
-
 def showHosters():
     oParams = ParameterHandler()
     sUrl = oParams.getValue('entryUrl')
     sHtmlContent = cRequestHandler(sUrl).request()
-    sPattern = '<a href="([^"]+)" target="videoPlayer" class="sinactive.*?src="/images/([^"]+)[^>]png'
+    sPattern = 'td[^>]class="w_50"><img alt="([^" ]+).*?this[^>][^>][^>][^>]([^",]+),.*?,[^>][^>]([^"]+)[^>][^>]"[^>]class="c_pointer">'
     aResult = cParser().parse(sHtmlContent, sPattern)
     hosters = []
     if aResult[1]:
-        for sUrl, sName in aResult[1]:
+        for sName, sDummy, sUrl in aResult[1]:
             hoster = {}
             hoster['link'] = sUrl
             hoster['name'] = sName
@@ -96,23 +86,14 @@ def showHosters():
         hosters.append('getHosterUrl')
     return hosters
 
-
 def getHosterUrl(sUrl=False):
     if not sUrl: sUrl = ParameterHandler().getValue('url')
     results = []
     result = {}
-
-    # resolve redirect
-    if not sUrl.startswith("http"):
-        oRequestHandler = cRequestHandler(URL_MAIN + sUrl)
-        oRequestHandler.request()
-        sUrl = oRequestHandler.getRealUrl()
-
     result['streamUrl'] = sUrl
     result['resolved'] = False
     results.append(result)
     return results
-
 
 def showSearch():
     oGui = cGui()
@@ -120,7 +101,6 @@ def showSearch():
     if not sSearchText: return
     _search(False, sSearchText)
     oGui.setEndOfDirectory()
-
 
 def _search(oGui, sSearchText):
     if not sSearchText: return

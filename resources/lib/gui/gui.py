@@ -42,6 +42,7 @@ class cGui:
            self.metaMode = 'replace'
         else:
            self.metaMode = 'add'
+        self.setView('files')
         #for globalSearch or alterSearch
         self.globalSearch = False
         self._collectMode = False
@@ -113,6 +114,7 @@ class cGui:
         oListItem = xbmcgui.ListItem(itemTitle + infoString, oGuiElement.getTitleSecond(), oGuiElement.getIcon(), oGuiElement.getThumbnail())
         oListItem.setInfo(oGuiElement.getType(), itemValues)     
         oListItem.setProperty('fanart_image', oGuiElement.getFanart())
+        oListItem.setArt({ 'poster': oGuiElement.getThumbnail()})
         aProperties = oGuiElement.getItemProperties()
         if len(aProperties)>0:
             for sPropertyKey in aProperties.keys():
@@ -214,17 +216,19 @@ class cGui:
         '''
         set the listing to a certain content, makes special views available
         sets view to the viewID which is selected in xStream settings
+
+        see http://mirrors.xbmc.org/docs/python-docs/stable/xbmcplugin.html#-setContent
+        (seasons is also supported but not listed)
         '''
-        if content == 'movies':
-            xbmcplugin.setContent(self.pluginHandle, 'movies')
-        elif content == 'tvshows':
-            xbmcplugin.setContent(self.pluginHandle, 'tvshows')
-        elif content == 'seasons':
-            xbmcplugin.setContent(self.pluginHandle, 'seasons')
-        elif content == 'episodes':
-            xbmcplugin.setContent(self.pluginHandle, 'episodes')
-        if cConfig().getSetting('auto-view')=='true':
-            xbmc.executebuiltin("Container.SetViewMode(%s)" % cConfig().getSetting(content+'-view') )
+        content = content.lower()
+        supportedViews = ['files', 'songs', 'artists', 'albums', 'movies', 'tvshows', 'seasons', 'episodes', 'musicvideos']
+
+        if content in supportedViews:
+            xbmcplugin.setContent(self.pluginHandle, content)
+        if cConfig().getSetting('auto-view')=='true' and content:
+            viewId = cConfig().getSetting(content+'-view')
+            if viewId:
+                xbmc.executebuiltin("Container.SetViewMode(%s)" % viewId)
 
 
     def updateDirectory(self):

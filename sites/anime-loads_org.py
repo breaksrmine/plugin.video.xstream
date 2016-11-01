@@ -94,7 +94,7 @@ def showEntries(entryUrl = False, sGui = False):
     # set 'safe_search' for adult results
     safeSearchUrl = entryUrl + ('&' if '?' in entryUrl else '?') + 'safe_search=' + str(int(showAdult()))
 
-    sHtmlContent = _getRequestHandler(safeSearchUrl, True).request()
+    sHtmlContent = _getRequestHandler(safeSearchUrl, True, (sGui is not False)).request()
     pattern = '<img[^>]*src="([^"]*)"[^>]*class="img-responsive[ ]img-rounded"[^>]*>.*?' # Thumbnail
     pattern += '<a[^>]*href="([^"]*)"[^>]*>(.*?)</a[>].*?' # link / title
     pattern += '<a[^>]*><i[^>]*></i>(.*?)</a[>].*?' # type
@@ -264,13 +264,18 @@ def _decryptLink(enc, ud):
     hosters = []
     if 'content' in response:
         for entry in response['content']:
-            for item in entry['links']:
-                hoster ={}
-                hoster['link'] = item['link']
-                hoster['name'] = entry['hoster_name']
-                if 'part' in item:
-                    hoster['displayedName'] = '%s - Part %s' % (entry['hoster_name'],item['part'])
-                hosters.append(hoster)
+            hostEntry = entry
+            if type(entry) is not dict and 'links' in response['content'][entry]:
+                hostEntry = response['content'][entry]
+
+            if 'links' in hostEntry:
+                for item in hostEntry['links']:
+                    hoster ={}
+                    hoster['link'] = item['link']
+                    hoster['name'] = hostEntry['hoster_name']
+                    if 'part' in item:
+                        hoster['displayedName'] = '%s - Part %s' % (hostEntry['hoster_name'],item['part'])
+                    hosters.append(hoster)
 
     if len(hosters) > 0:
         hosters.append('getHosterUrl')
@@ -325,7 +330,7 @@ def _getSiteKey():
     else:
         logger.error("error while getting sitekey: basic.min.js not found")
 
-def _getRequestHandler(sUrl, bCache = False):
-    oRequest = cRequestHandler(sUrl, caching = bCache)
+def _getRequestHandler(sUrl, bCache = False, ignoreErrors = False):
+    oRequest = cRequestHandler(sUrl, caching = bCache, ignoreErrors = ignoreErrors)
     oRequest.addHeaderEntry('User-Agent', 'Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/36.0')
     return oRequest

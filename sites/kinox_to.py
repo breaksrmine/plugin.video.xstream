@@ -153,7 +153,7 @@ def __checkSubLanguage(sTitle):
     return [title, 'de'] if subLang == 'german' else [title, subLang]
 
 
-def __getHtmlContent(sUrl=None, sSecurityValue=None):
+def __getHtmlContent(sUrl=None, sSecurityValue=None, ignoreErrors = False):
     oParams = ParameterHandler()
     # Test if a url is available and set it
     if sUrl is None and not oParams.exist('sUrl'):
@@ -170,7 +170,7 @@ def __getHtmlContent(sUrl=None, sSecurityValue=None):
     # preferred language
     sPrefLang = __getPreferredLanguage()
     # Make the request
-    oRequest = cRequestHandler(sUrl)
+    oRequest = cRequestHandler(sUrl, ignoreErrors = ignoreErrors)
     oRequest.addHeaderEntry('Cookie', sPrefLang + str(sSecurityValue) + 'ListDisplayYears=Always;')
     oRequest.addHeaderEntry('Referer', URL_MAIN)
     oRequest.addHeaderEntry('Accept', '*/*')
@@ -240,7 +240,7 @@ def showSearch():
     # Show the keyboard and test if anything was entered
     sSearchText = oGui.showKeyBoard()
     if not sSearchText: return
-    _search(oGui, sSearchText)
+    _search(False, sSearchText)
     oGui.setEndOfDirectory()
 
 
@@ -248,12 +248,14 @@ def _search(oGui, sSearchText):
     # Create the request with the search value
     sFullSearchUrl = URL_SEARCH + ("?q=%s" % sSearchText)
     logger.info("Search URL: %s" % sFullSearchUrl)
-    sHtmlContent = __getHtmlContent(sFullSearchUrl)
+    sHtmlContent = __getHtmlContent(sFullSearchUrl, ignoreErrors = (oGui is not False))
     # Display all items returned...
     __displayItems(oGui, sHtmlContent)
 
 
-def __displayItems(oGui, sHtmlContent):
+def __displayItems(sGui, sHtmlContent):
+    oGui = sGui if sGui else cGui()
+
     # Test if a cookie was set, else define the default empty one
     oParams = ParameterHandler()
 

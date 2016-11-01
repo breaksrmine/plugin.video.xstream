@@ -89,33 +89,36 @@ def showSearch():
     oGui = cGui()
     sSearchText = oGui.showKeyBoard()
     if (sSearchText != False and sSearchText != ''):
-        _search(oGui, sSearchText)
+        _search(False, sSearchText)
     else:
         return
     oGui.setEndOfDirectory()
 
 
-def _search(oGui, sSearchText):
+def _search(sGui, sSearchText):
+    oGui = sGui if sGui else cGui()
     params = ParameterHandler()
-    oRequestHandler = cRequestHandler(URL_SEARCH + '?q=' + sSearchText)
+    oRequestHandler = cRequestHandler(URL_SEARCH + '?q=' + sSearchText, ignoreErrors = (sGui is not False))
     oRequestHandler.addHeaderEntry('X-Requested-With', 'XMLHttpRequest')
     sHtmlContent = oRequestHandler.request()
-    series = json.loads(sHtmlContent)
+    
+    if sHtmlContent:
+        series = json.loads(sHtmlContent)
 
-    if series:
-        total = len(series)
-        for serie in series:
-            sTitle = serie["name"].encode('utf-8')
-            guiElement = cGuiElement(sTitle, SITE_IDENTIFIER, 'showSeasons')
-            guiElement.setMediaType('tvshow')
-            params.addParams({'sUrl': serie['url'], 'Title': sTitle})
-            oGui.addFolder(guiElement, params, iTotal=total)
+        if series:
+            total = len(series)
+            for serie in series:
+                sTitle = serie["name"].encode('utf-8')
+                guiElement = cGuiElement(sTitle, SITE_IDENTIFIER, 'showSeasons')
+                guiElement.setMediaType('tvshow')
+                params.addParams({'sUrl': serie['url'], 'Title': sTitle})
+                oGui.addFolder(guiElement, params, iTotal=total)
 
 
 def showGenresMenu():
     logger.info('load displayGenreSite')
     oParams = ParameterHandler()
-    sPattern = '<a href="' + URL_GENRE + '(.*?).html".*?>(.*?)</a>'
+    sPattern = '<li><a href="' + URL_GENRE + '(.*?).html".*?>(.*?)</a></li>'
 
     # request
     sHtmlContent = __getHtmlContent(URL_MAIN)

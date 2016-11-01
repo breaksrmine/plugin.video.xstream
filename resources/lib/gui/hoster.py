@@ -88,7 +88,7 @@ class cHosterGui:
         return False
 
     def _addUserAgent(self, link):
-        if 'User-Agent' in link:
+        if 'User-Agent' or 'youtube' in link:
             return link
         if '|' in link:
             return link + '&' + self.userAgent
@@ -193,7 +193,9 @@ class cHosterGui:
             if hoster.get('resolveable',False):
                 ranking.append([0,hoster])
                 continue
-            source = urlresolver.HostedMediaFile(host=hoster['name'].lower(), media_id='dummy')
+            source = urlresolver.HostedMediaFile(url=hoster['link'])
+            if not source:
+                source = urlresolver.HostedMediaFile(host=hoster['name'].lower(), media_id='dummy')
             if source:
                 priority = False
                 for resolver in source._HostedMediaFile__resolvers:

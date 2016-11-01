@@ -1,26 +1,37 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.xstream"
-	name="xStream"
-	version="2.3.0"
-	provider-name="Lynx187 (originator: murphy, MaxMustermann)">
-  <requires>
-    <import addon="xbmc.python"                 version="2.1.0"/>
-    <import addon="script.module.urlresolver"   version="2.9.0"/>
-    <import addon="script.module.metahandler"   version="1.0.0"/>
-    <import addon="script.module.mechanize"     version="0.2.6"/>
-  </requires>
-  <extension point="xbmc.python.pluginsource" library="default.py">
-    <provides>video</provides>
-  </extension>
-  <extension point="xbmc.addon.metadata">
-    <summary lang="de">xStream</summary>
-    <description lang="de">xStream ist ein Addon, welches mit eigenen Plugins erweitert werden kann. Hiermit kann man Filme, Serien, etc. per Stream anschauen.[CR]Support: http://xstream-addon.square7.ch </description>
-    <disclaimer lang="de">Die von diesem Addon dargestellten Inhalte werden von den Erstellern des Addons weder gehostet oder verbreitet, noch stehen die Ersteller in irgendeiner Beziehung zu den Content-Anbietern.</disclaimer>
-    <summary lang="en">xStream</summary>
-    <description lang="en">Addon to watch streams from various film an series sites.[CR]Support: http://xstream-addon.square7.ch</description>
-    <disclaimer lang="en">The creators of this addon do not host or distribute any of the content displayed by the addon nor do they have any affiliation with the content providers.</disclaimer>
-    <forum>http://xstream-addon.square7.ch</forum>
-    <website>http://xstream-addon.square7.ch</website>
-    <platform>all</platform>
-  </extension>
+    name="xStream"
+    version="2.3.1~nightly"
+    provider-name="Lynx187 (originator: murphy, MaxMustermann)">
+ <requires>
+   <import addon="xbmc.python"                 version="2.14.0"/>
+   <import addon="script.module.urlresolver"   version="2.9.0"/>
+   <import addon="script.module.metahandler"   version="1.0.0"/>
+   <import addon="script.module.mechanize"     version="0.2.6"/>
+ </requires>
+ <extension point="xbmc.python.pluginsource" library="default.py">
+   <provides>video</provides>
+ </extension>
+ <extension point="xbmc.addon.metadata">
+   <summary lang="de">xStream</summary>
+   <description lang="de">xStream ist ein Addon, welches mit eigenen Plugins erweitert werden kann. Hiermit kann man Filme, Serien, etc. per Stream anschauen.[CR]Support: http://xstream-addon.square7.ch </description>
+   <disclaimer lang="de">Die von diesem Addon dargestellten Inhalte werden von den Erstellern des Addons weder gehostet oder verbreitet, noch stehen die Ersteller in irgendeiner Beziehung zu den Content-Anbietern.</disclaimer>
+   <summary lang="en">xStream</summary>
+   <description lang="en">Addon to watch streams from various film an series sites.[CR]Support: http://xstream-addon.square7.ch</description>
+   <disclaimer lang="en">The creators of this addon do not host or distribute any of the content displayed by the addon nor do they have any affiliation with the content providers.</disclaimer>
+   <forum>http://xstream-addon.square7.ch</forum>
+   <website>http://xstream-addon.square7.ch</website>
+   <source>https://github.com/Lynx187/plugin.video.xstream</source>
+   <license>GNU GPLv3</license>
+   <platform>all</platform>
+   <assets>
+     <icon>icon.png</icon>
+     <fanart>fanart.jpg</fanart>
+     <screenshot>resources/art/screenshot-01.png</screenshot>
+     <screenshot>resources/art/screenshot-02.png</screenshot>
+     <screenshot>resources/art/screenshot-03.png</screenshot>
+     <screenshot>resources/art/screenshot-04.png</screenshot>
+     <screenshot>resources/art/screenshot-05.png</screenshot>
+   </assets>
+ </extension>
 </addon>

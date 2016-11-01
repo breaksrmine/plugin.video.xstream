@@ -14,6 +14,9 @@ from resources.lib.config import cConfig
 from resources.lib import common
 from resources.lib import logger
 
+from resources.lib import logger
+from cCFScrape import cCFScrape
+
 class cRequestHandler:
     REQUEST_TYPE_GET = 0
     REQUEST_TYPE_POST = 1
@@ -31,6 +34,7 @@ class cRequestHandler:
         self.caching = caching
         self.ignoreErrors = ignoreErrors
         self.cacheTime = int(cConfig().getSetting('cacheTime'))
+        self.requestTimeout = int(cConfig().getSetting('requestTimeout'))
         self.removeBreakLines(True)
         self.removeNewLines(True)
         self.__setDefaultHeader()
@@ -38,6 +42,8 @@ class cRequestHandler:
         self.__setCookiePath()
         self.__sResponseHeader = ''
 
+        if self.requestTimeout >= 60 or self.requestTimeout <= 0:
+            self.requestTimeout = 60
 
     def removeNewLines(self, bRemoveNewLines):
         self.__bRemoveNewLines = bRemoveNewLines
@@ -50,6 +56,10 @@ class cRequestHandler:
 
     def addHeaderEntry(self, sHeaderKey, sHeaderValue):
         self.__headerEntries[sHeaderKey] = sHeaderValue
+
+    def getHeaderEntry(self, sHeaderKey):
+        if sHeaderKey in self.__headerEntries:
+            return self.__headerEntries[sHeaderKey]
 
     def addParameters(self, key, value, quote = False):
         if not quote:
@@ -104,21 +114,26 @@ class cRequestHandler:
             sContent = self.readCache(self.getRequestUri())
             if sContent:
                 return sContent
+
         try:
-            oResponse = opener.open(oRequest,timeout = 60)
+            oResponse = opener.open(oRequest,timeout = self.requestTimeout)
         except mechanize.HTTPError, e:
-            if not self.ignoreErrors:
+            if e.code == 503 and e.headers.get("Server") == 'cloudflare-nginx':
+                oResponse, cookieJar = cCFScrape().resolve(oRequest, e, cookieJar)
+            elif not self.ignoreErrors:
                 xbmcgui.Dialog().ok('xStream','Fehler beim Abrufen der Url:',self.__sUrl, str(e))
                 logger.error("HTTPError "+str(e)+" Url: "+self.__sUrl)
                 return ''
             else:
                 oResponse = e                 
         except mechanize.URLError, e:
-            xbmcgui.Dialog().ok('xStream',str(e.reason), 'Fehler')
+            if not self.ignoreErrors:
+                xbmcgui.Dialog().ok('xStream',str(e.reason), 'Fehler')
             logger.error("URLError "+str(e.reason)+" Url: "+self.__sUrl)
             return ''
         except httplib.HTTPException, e:
-            xbmcgui.Dialog().ok('xStream', str(e))
+            if not self.ignoreErrors:
+                xbmcgui.Dialog().ok('xStream', str(e))
             logger.error("HTTPException "+str(e)+" Url: "+self.__sUrl)
             return ''
 
@@ -208,7 +223,7 @@ class cRequestHandler:
 
         return mechanize.Cookie(**result)
 
-    def getCookie(self, sCookieName):
+    def getCookie(self, sCookieName, sDomain = ''):
         cookieJar = mechanize.LWPCookieJar()
         try: #TODO ohne try evtl.
             cookieJar.load(self._cookiePath, self.__bIgnoreDiscard, self.__bIgnoreExpired)
@@ -217,7 +232,10 @@ class cRequestHandler:
 
         for entry in cookieJar:
             if entry.name == sCookieName:
-                return entry
+                if sDomain == '':
+                    return entry
+                elif entry.domain == sDomain:
+                    return entry
 
         return False
 

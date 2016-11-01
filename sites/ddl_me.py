@@ -96,7 +96,7 @@ def showEntries(entryUrl = False, sGui = False):
     params = ParameterHandler() 
     if not entryUrl: entryUrl = params.getValue('sUrl')  
 
-    sHtmlContent = cRequestHandler(entryUrl).request()
+    sHtmlContent = cRequestHandler(entryUrl, ignoreErrors = (sGui is not False)).request()
     pattern = "<div[^>]*class='iwrap type_(\d*)'[^>]*>\s*?" # smType
     pattern += "<a[^>]*title='([^']*)'*[^>]*href='([^']*)'*>.*?" # title / url
     pattern += "<img[^>]*src='([^']*)'[^>]*>.*?" # thumbnail

@@ -84,20 +84,25 @@ def showSearch():
     sSearchText = oGui.showKeyBoard()
     if not sSearchText: return
     _search(oGui, sSearchText)
+    oGui.setView('tvshows')
     oGui.setEndOfDirectory()
 
 ### Helper functions
 
 # Load a JSON object
-def _getJsonContent(urlPart):
-    request = cRequestHandler(URL_MAIN + urlPart)
+def _getJsonContent(urlPart, ignoreErrors = False):
+    request = cRequestHandler(URL_MAIN + urlPart, ignoreErrors = ignoreErrors)
     mod_request(request, urlPart)
-    return json.loads(request.request())
+    content = request.request()
+    if content:
+        return json.loads(content)
+    else:
+        return []
 
 # Search for series using the requested string sSearchText
 def _search(oGui, sSearchText):
     params = ParameterHandler()
-    series = _getJsonContent("series")
+    series = _getJsonContent("series", True)
     total = len(series)
     sSearchText = sSearchText.lower()
     for serie in series:
@@ -137,9 +142,9 @@ def showSeasons():
         guiElement.setMediaType('season')
         guiElement.setSeason(seasonNum)
         guiElement.setTVShowTitle(sTitle)
-
-        params.setParam('Season', seasonNum)
+        guiElement.setDescription(data["series"]["description"])
         guiElement.setThumbnail(URL_COVER % data["series"]["id"])
+        params.setParam('Season', seasonNum)
         oGui.addFolder(guiElement, params, iTotal = total)
     oGui.setView('seasons')
     oGui.setEndOfDirectory()
@@ -169,6 +174,7 @@ def showEpisodes():
         guiElement.setEpisode(episode['epi'])
         guiElement.setTVShowTitle(sShowTitle)
         guiElement.setThumbnail(URL_COVER % data["series"]["id"])
+        guiElement.setDescription(data["series"]["description"])
         oParams.setParam('EpisodeNr', episode['epi'])
         oGui.addFolder(guiElement, oParams, bIsFolder = False, iTotal = total)
     oGui.setView('episodes')
@@ -193,9 +199,10 @@ def showCinemaMovies():
         guiElement.setMediaType('movie')
         guiElement.setTitle(title)
         guiElement.setThumbnail(URL_COVER % data["series"]["id"])
+        guiElement.setDescription(data["series"]["description"])
         oParams.setParam('EpisodeNr', movie['epi'])
         oGui.addFolder(guiElement, oParams, bIsFolder = False, iTotal = total)
-    oGui.setView('movie')
+    oGui.setView('movies')
     oGui.setEndOfDirectory()
     
 def showRandom():
@@ -220,7 +227,7 @@ def randomSerie():
     guiElement.setThumbnail(URL_COVER % serie["id"])
     oParams.addParams({'seriesID': str(serie["id"]), 'Title': sTitle})
     oGui.addFolder(guiElement, oParams, iTotal=1)
-
+    oGui.setView('tvshows')
     oGui.setEndOfDirectory()
 
 def randomSeason():
@@ -243,11 +250,12 @@ def randomSeason():
     guiElement.setMediaType('season')
     guiElement.setSeason(seasonNum)
     guiElement.setTVShowTitle(oParams.getValue('Title'))
+    guiElement.setDescription(seasons["series"]["description"])
 
     oParams.setParam('Season', seasonNum)
     guiElement.setThumbnail(URL_COVER % data["series"]["id"])
     oGui.addFolder(guiElement, oParams, iTotal=1)
-
+    oGui.setView('seasons')
     oGui.setEndOfDirectory()
 
 def randomEpisode():
@@ -278,6 +286,7 @@ def randomEpisode():
     guiElement.setSeason(season['season'])
     guiElement.setTVShowTitle(series['series'])
     guiElement.setThumbnail(URL_COVER % int(season['series']['id']))
+    guiElement.setDescription(season["series"]["description"])
     oParams.setParam('EpisodeNr', randomEpisodeNr)
     oParams.setParam('seriesID', season['series']['id'])
     oParams.setParam('Season', season['season'])
@@ -285,7 +294,6 @@ def randomEpisode():
 
     oGui.setView('episodes')
     oGui.setEndOfDirectory()
-    return
  
 # Show a hoster dialog for a requested episode
 def showHosters():
@@ -301,6 +309,8 @@ def showHosters():
         hoster = dict()
         hoster['link'] = URL_MAIN + 'watch/' + link['id']
         hoster['name'] = link['hoster']
+        if hoster['name'] == "OpenLoadHD":
+            hoster['name'] = "OpenLoad";
         hoster['displayedName'] = link['hoster']
         hosters.append(hoster)
     if hosters:
@@ -321,6 +331,8 @@ def getHosterUrl(sUrl = False):
     else:
         result['streamID'] = data['url']
         result['host'] = data['hoster']
+        if result['host'] == "OpenLoadHD":
+            result['host'] = "OpenLoad";
     result['resolved'] = False
     results.append(result)
     return results

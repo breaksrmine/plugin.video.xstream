@@ -44,8 +44,8 @@ def showEntries(entryUrl = False, sGui = False):
     oGui = sGui if sGui else cGui()
     params = ParameterHandler()
     if not entryUrl: entryUrl = params.getValue('sUrl')
-	
-    sHtmlContent = cRequestHandler(entryUrl).request()
+
+    sHtmlContent = cRequestHandler(entryUrl, ignoreErrors = (sGui is not False)).request()
     parser = cParser()
     aResult = parser.parse(sHtmlContent, '<h2[^>]*class="maintitle">(.*?)<center') # filter main content if needed
     if aResult[0]:

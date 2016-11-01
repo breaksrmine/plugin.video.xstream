@@ -7,7 +7,7 @@ from resources.lib import logger
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib.handler.pluginHandler import cPluginHandler
 from resources.lib.util import cUtil
-import re, base64, urllib
+import re, base64
 
 SITE_IDENTIFIER = 'moviesever_com'
 SITE_NAME = 'MoviesEver'
@@ -38,7 +38,7 @@ def __isSeriesEverAvaiable():
     return False
 
 
-def __getHtmlContent(sUrl=None):
+def __getHtmlContent(sUrl=None, ignoreErrors = False):
     oParams = ParameterHandler()
     # Test if a url is available and set it
     if sUrl is None and not oParams.exist('sUrl'):
@@ -48,7 +48,7 @@ def __getHtmlContent(sUrl=None):
         if sUrl is None:
             sUrl = oParams.getValue('sUrl')
     # Make the request
-    oRequest = cRequestHandler(sUrl)
+    oRequest = cRequestHandler(sUrl, ignoreErrors = ignoreErrors)
     oRequest.addHeaderEntry('Referer', URL_MAIN)
     oRequest.addHeaderEntry('Accept', '*/*')
 
@@ -70,7 +70,7 @@ def showSearch():
 
     sSearchText = oGui.showKeyBoard()
     if (sSearchText != False and sSearchText != ''):
-        _search(oGui, sSearchText)
+        _search(False, sSearchText)
     else:
         return
 
@@ -118,7 +118,7 @@ def showMovies(oGui = False, sUrl=False, bShowAllPages=False):
     sPagePattern = '%spage/(.*?)/' % sUrl
 
     # request
-    sHtmlContent = __getHtmlContent(sUrl)
+    sHtmlContent = __getHtmlContent(sUrl, ignoreErrors = (oGui is not False))
     # parse content
     oParser = cParser()
     aPages = oParser.parse(sHtmlContent, sPagePattern)
@@ -134,12 +134,12 @@ def showMovies(oGui = False, sUrl=False, bShowAllPages=False):
         bInternGui = True
         oGui = cGui()
 
-    sHtmlContentPage = __getHtmlContent(sUrl)
+    sHtmlContentPage = __getHtmlContent(sUrl, ignoreErrors = (oGui is not False))
     __getMovies(oGui, sHtmlContentPage)
 
     if int(pages) > 1:
         for x in range(2, int(pages) + 1):
-            sHtmlContentPage = __getHtmlContent('%spage/%s/' % (sUrl, str(x)))
+            sHtmlContentPage = __getHtmlContent('%spage/%s/' % (sUrl, str(x)), ignoreErrors = (oGui is not False))
             __getMovies(oGui, sHtmlContentPage)
 
     if bInternGui:
@@ -184,7 +184,6 @@ def __decode(text):
     return text
 
 def __checkSEUrl(sUrl):
-    logger.info("Checking " + sUrl)
     if "play/old/framer.php" in sUrl:
         sHtmlContent = __getHtmlContent(sUrl)
         sUrl = re.findall('src="(.*?)"', sHtmlContent)[0]
@@ -193,9 +192,7 @@ def __checkSEUrl(sUrl):
         sHtmlContent = __getHtmlContent(sUrl)
         sHash = re.findall('link:"(.*?)"', sHtmlContent)[0]
         return __decodeHash(sHash)
-    url = __decodeHash(sUrl)
-    if url.startswith('http'): return url
-    return None
+    return sUrl
 
 
 def __decodeHash(sHash):
@@ -249,16 +246,25 @@ def showHosters():
 
 
 def getHoster(sHtmlContent, hosters):
-    sPattern = '(?:\{"link":"|<p><iframe src=")([^"]*?)"'
+    isEncoded = False
+
+    if 'gkpluginsphp' in sHtmlContent:
+        sPattern = '{"link":"(.*?)"}'
+        isEncoded = True
+    else:
+        sPattern = '<iframe.*?src="(.*?)".*?>'
 
     # parse content
     oParser = cParser()
-
     aResult = oParser.parse(sHtmlContent, sPattern)
+
     if aResult[0]:
         hoster = dict()
 
-        hoster['link'] = __checkSEUrl(aResult[1][0])
+        if isEncoded:
+            hoster['link'] = __decodeHash(aResult[1][0])
+        else:
+            hoster['link'] = __checkSEUrl(aResult[1][0])
 
         if hoster['link'] is None:
             return hosters

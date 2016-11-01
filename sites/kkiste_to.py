@@ -109,12 +109,13 @@ def showMovies():
 def _parseMedia(sUrl,sRootUrl,iPage,sPattern, oGui):
     logger.error("parse %s with pattern %s" % (sUrl, sPattern))
 
-    oRequestHandler = cRequestHandler(sUrl)
+    oRequestHandler = cRequestHandler(sUrl, ignoreErrors = (oGui is not False))
     sHtmlContent = oRequestHandler.request()
 
     _parseMovie(sHtmlContent,sUrl,sRootUrl,iPage,sPattern,oGui)
 
-def _parseMovie(sHtmlContent,sUrl,sRootUrl,iPage,sPattern, oGui):
+def _parseMovie(sHtmlContent,sUrl,sRootUrl,iPage,sPattern, sGui):
+    oGui = sGui if sGui else cGui()
     oParser = cParser()
     aResult = oParser.parse(sHtmlContent, sPattern)
     if aResult[0]:
@@ -263,7 +264,7 @@ def showSearch():
     oGui = cGui()
     sSearchText = oGui.showKeyBoard()
     if not sSearchText: return
-    _search(oGui, sSearchText)
+    _search(False, sSearchText)
     oGui.setEndOfDirectory()
 
 def showCharacters():
