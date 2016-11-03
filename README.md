@@ -53,6 +53,7 @@ Mit xStream ist es möglich Serien und Filme unterschiedlichster Streaming-Platt
 | AnimeLoads     | anime-loads.org   | funktioniert           | 09.04.2016 |
 | BurningSeries  | bs.to             | funktioniert           | 09.04.2016 |
 | Cine           | cine.to           | funktioniert           | 25.05.2016 |
+| CineDream      | cine-dream.net    | funktioniert           | 21.06.2016 |
 | Cineplex       | cineplex.tv       | funktioniert           | 29.07.2016 |
 | DirectDownLoad | ddl.me            | funktioniert           | 09.04.2016 |
 | Dokustreamer   | dokustreamer.de   | funktioniert           | 28.08.2016 |
@@ -65,11 +66,12 @@ Mit xStream ist es möglich Serien und Filme unterschiedlichster Streaming-Platt
 | KinoStreamz    | kino-streamz.com  | funktioniert           | 07.08.2016 |
 | KinoX          | kinox.to          | funktioniert           | 09.04.2016 |
 | Movie4k        | movie4k.to        | funktioniert           | 09.04.2016 |
-| SerienStream   | serienstream.to   | funktioniert           | 26.10.2016 |
 | MoviesEver     | moviesever.com    | funktioniert teilweise | 09.04.2016 |
+| MyKino         | mykino.to         | funktioniert           | 29.10.2016 |
 | SeriesEver     | seriesever.net    | funktioniert           | 09.04.2016 |
+| SerienStream   | serienstream.to   | funktioniert           | 26.10.2016 |
 | StreamIt       | streamit.ws       | funktioniert           | 19.09.2016 |
-| StreamKisteTV    | streamkiste.tv    | funktioniert           | 27.10.2016 |
+| StreamKisteTV  | streamkiste.tv    | funktioniert           | 27.10.2016 |
 | SzeneStreams   | szene-streams.com | funktioniert           | 09.04.2016 |
 | Tata           | tata.to           | funktioniert           | 17.09.2016 |
 | Video2k        | video2k.is        | funktioniert           | 28.09.2016 |
