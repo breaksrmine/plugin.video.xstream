@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
-from resources.lib.gui.contextElement import cContextElement
-from resources.lib.config import cConfig
-from resources.lib.handler.ParameterHandler import ParameterHandler
-from resources.lib.gui.guiElement import cGuiElement
-from resources.lib import common
+import sys
+import urllib
 
 import xbmc
 import xbmcgui
 import xbmcplugin
 
-import urllib
-import sys,os
+from resources.lib import common
+from resources.lib.config import cConfig
+from resources.lib.gui.contextElement import cContextElement
+from resources.lib.gui.guiElement import cGuiElement
+from resources.lib.handler.ParameterHandler import ParameterHandler
+
 
 #import xbmcaddon
 #from sys import path
@@ -42,10 +43,11 @@ class cGui:
            self.metaMode = 'replace'
         else:
            self.metaMode = 'add'
-        self.setView('files')
+
         #for globalSearch or alterSearch
         self.globalSearch = False
         self._collectMode = False
+        self._isViewSet = False
         self.searchResults = []
 
 
@@ -199,6 +201,10 @@ class cGui:
         '''
         mark the listing as completed, this is mandatory
         '''
+
+        if not self._isViewSet:
+            self.setView('files')
+
         xbmcplugin.setPluginCategory(self.pluginHandle, "")
         # add some sort methods, these will be available in all views         
         xbmcplugin.addSortMethod(self.pluginHandle, xbmcplugin.SORT_METHOD_UNSORTED)
@@ -224,11 +230,13 @@ class cGui:
         supportedViews = ['files', 'songs', 'artists', 'albums', 'movies', 'tvshows', 'seasons', 'episodes', 'musicvideos']
 
         if content in supportedViews:
+            self._isViewSet = True
             xbmcplugin.setContent(self.pluginHandle, content)
         if cConfig().getSetting('auto-view')=='true' and content:
             viewId = cConfig().getSetting(content+'-view')
             if viewId:
                 xbmc.executebuiltin("Container.SetViewMode(%s)" % viewId)
+        
 
 
     def updateDirectory(self):
@@ -277,7 +285,9 @@ class cGui:
                 sItemUrl += '&playMode=play'
         return sItemUrl       
 
-    def showKeyBoard(self, sDefaultText = ""):
+
+    @staticmethod
+    def showKeyBoard(sDefaultText = ""):
         # Create the keyboard object and display it modal
         oKeyboard = xbmc.Keyboard(sDefaultText)
         oKeyboard.doModal()    
@@ -289,37 +299,37 @@ class cGui:
         return False
         
 
-    def showNumpad(self, defaultNum = "", numPadTitle="Choose page"):
+    @staticmethod
+    def showNumpad(defaultNum = "", numPadTitle="Choose page"):
         defaultNum = str(defaultNum)
         dialog = xbmcgui.Dialog()
         num = dialog.numeric(0, numPadTitle, defaultNum)
         return num
         
-
-    def openSettings(self):
+    @staticmethod
+    def openSettings():
         cConfig().showSettingsWindow()
-        
 
-    def showNofication(self, sTitle, iSeconds=0):
+    @staticmethod
+    def showNofication(sTitle, iSeconds=0):
         if (iSeconds == 0):
           iSeconds = 1000
         else:
           iSeconds = iSeconds * 1000  
         xbmc.executebuiltin("Notification(%s,%s,%s,%s)" % (cConfig().getLocalizedString(30308), (cConfig().getLocalizedString(30309) % str(sTitle)), iSeconds, common.addon.getAddonInfo('icon')))
-        
 
-    def showError(self, sTitle, sDescription, iSeconds = 0):
+    @staticmethod
+    def showError(sTitle, sDescription, iSeconds = 0):
         if iSeconds == 0:
           iSeconds = 1000
         else:
           iSeconds = iSeconds * 1000
         xbmc.executebuiltin("Notification(%s,%s,%s,%s)" % (str(sTitle), (str(sDescription)), iSeconds, common.addon.getAddonInfo('icon')))
-        
 
-    def showInfo(self, sTitle, sDescription, iSeconds=0):
+    @staticmethod
+    def showInfo(sTitle, sDescription, iSeconds=0):
         if (iSeconds == 0):
             iSeconds = 1000
         else:
             iSeconds = iSeconds * 1000
         xbmc.executebuiltin("Notification(%s,%s,%s,%s)" % (str(sTitle), (str(sDescription)), iSeconds, common.addon.getAddonInfo('icon')))
-         

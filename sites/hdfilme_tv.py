@@ -105,7 +105,7 @@ def showGenreList():
     pattern = '<select[^>]*name="cat"[^>]*>(.*?)</select[>].*?'
 
     # Regex parsen
-    isMatch, sContainer = cParser().parseSingleResult(sHtmlContent, pattern)
+    isMatch, sContainer = cParser.parseSingleResult(sHtmlContent, pattern)
 
     # Nichts gefunden? => raus hier
     if not isMatch:
@@ -115,7 +115,7 @@ def showGenreList():
     pattern = '<option[^>]*value="(\d[^ ]*)"[^>]*>(.*?)</option[>].*?'
     
     # Regex parsen
-    isMatch, aResult = cParser().parse(sContainer, pattern)
+    isMatch, aResult = cParser.parse(sContainer, pattern)
 
     # Nichts gefunden? => raus hier
     if not isMatch:
@@ -148,8 +148,7 @@ def showEntries(entryUrl = False, sGui = False):
     
     # Filter out the main section
     pattern = '<ul class="products row">(.*?)</ul>'
-    parser = cParser()
-    isMatch, sMainContent = parser.parseSingleResult(sHtmlContent, pattern)
+    isMatch, sMainContent = cParser.parseSingleResult(sHtmlContent, pattern)
 
     # Funktion verlassen falls keine Daten ermittelt werden konnten
     if not isMatch: 
@@ -174,7 +173,7 @@ def showEntries(entryUrl = False, sGui = False):
     pattern += '<div[^>]*class="popover-content"[^>]*>\s*<p[^>]*>([^<>]*)</p>'
 
     # HTML parsen
-    isMatch, aResult = parser.parse(sMainContent, pattern)
+    isMatch, aResult = cParser.parse(sMainContent, pattern)
 
     # Kein Einträge gefunden? => Raus hier
     if not isMatch: 
@@ -213,8 +212,8 @@ def showEntries(entryUrl = False, sGui = False):
 
         # Thumbnail und Beschreibung für Anzeige anpassen
         sThumbnail = sThumbnail.replace('_thumb', '')
-        sThumbnail = cCFScrape().createUrl(sThumbnail, oRequest)
-        sDesc = cUtil().unescape(sDesc.decode('utf-8')).encode('utf-8').strip()
+        sThumbnail = cCFScrape.createUrl(sThumbnail, oRequest)
+        sDesc = cUtil.unescape(sDesc.decode('utf-8')).encode('utf-8').strip()
 
         # Falls vorhanden Jahr ergänzen
         if iYear:
@@ -235,7 +234,7 @@ def showEntries(entryUrl = False, sGui = False):
     pattern += '<li[^>]*class="active"[^>]*><a>(\d*)</a>.*</ul>'
 
     # Seite parsen
-    isMatch, sPageNr = parser.parseSingleResult(sHtmlContent, pattern)
+    isMatch, sPageNr = cParser.parseSingleResult(sHtmlContent, pattern)
 
     # Falls ein Ergebniss gefunden wurden "Next-Page" ergänzen
     if isMatch:
@@ -259,7 +258,7 @@ def showHosters():
 
     # Prüfen ob Episoden gefunden werden
     pattern = '<a[^>]*episode="([^"]*)"[^>]*href="([^"]*)"[^>]*>'
-    isMatch, aResult = cParser().parse(sHtmlContent, pattern)
+    isMatch, aResult = cParser.parse(sHtmlContent, pattern)
 
     # Prüfen ob Einträge vorliegen
     if not isMatch:
@@ -318,8 +317,7 @@ def getHosters(sUrl = False):
 
     # Servername und Episoden pro Server ermitteln
     pattern = "<ul[^>]*class=['\"]list-inline list-film['\"][^>]*>.*?([a-zA-Z0-9_ ]+)</div>(.*?)</ul>"
-    parser = cParser()
-    isMatch, aResult = parser.parse(sHtmlContent, pattern)
+    isMatch, aResult = cParser.parse(sHtmlContent, pattern)
 
     # Hosterliste initialisieren
     hosters = []
@@ -336,7 +334,7 @@ def getHosters(sUrl = False):
         for sServername, sInnerHtml in aResult:
             # Nur Links für die gewünschte Episode ermitteln
             pattern = "<a[^>]*href=['\"]([^'\"]*)['\"][^>]*>\s+(?:%s|HD|SD|Audio Mic|Bluray)\s+</a>" % sEpisode
-            isMatch, sServerUrl = parser.parseSingleResult(sInnerHtml, pattern)
+            isMatch, sServerUrl = cParser.parseSingleResult(sInnerHtml, pattern)
 
             # Wurde ein Link gefunden? => Einträge zur Gesamtliste hinzufügen
             if isMatch:
@@ -354,7 +352,7 @@ def _getHostFromUrl(sUrl, sServername):
 
     # JSon mit den Links ermitteln
     pattern = '(\[{".*?}\])'
-    isMatch, sJson = cParser().parseSingleResult(sHtmlContent, pattern)
+    isMatch, sJson = cParser.parseSingleResult(sHtmlContent, pattern)
 
     # Nichts gefunden? => Raus hier
     if not isMatch: 

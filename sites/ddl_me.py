@@ -11,7 +11,7 @@ import json
 SITE_IDENTIFIER = 'ddl_me'
 SITE_NAME = 'DirectDownLoad'
 SITE_ICON = 'ddl.png'
-SITE_SETTINGS = '<setting default="de.ddl.me" enable="!eq(-1,false)" id="ddl_me-domain" label="' + SITE_NAME + ' domain" type="labelenum" values="de.ddl.me|en.ddl.me" />'
+SITE_SETTINGS = '<setting default="de.ddl.me" enable="!eq(-1,false)" id="ddl_me-domain" label="30051" type="labelenum" values="de.ddl.me|en.ddl.me" />'
 
 oConfig = cConfig()
 DOMAIN = oConfig.getSetting('ddl_me-domain')

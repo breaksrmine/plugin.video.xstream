@@ -4,6 +4,7 @@ from os import getcwd
 from os.path import join
 from sys import path
 import xbmc
+import platform
 from xbmc import log
 from resources.lib import common
 
@@ -22,6 +23,8 @@ log("The new sys.path list: %s" % path, level = xbmc.LOGDEBUG)
 # Run xstream
 from xstream import run
 log('*---- Running xStream, version %s ----*' % __settings__.getAddonInfo('version'))
+print "\t[xStream] Python-Version: %s" % platform.python_version()
+
 #import cProfile
 #cProfile.run('run()',join(__cwd__,'xstream.pstats'))
 try:

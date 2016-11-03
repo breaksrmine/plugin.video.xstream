@@ -138,7 +138,7 @@ def parseUrl():
             return
         elif sFunction == 'updateXstream':
             from resources.lib import updateManager
-            updateManager.checkforupdates()
+            updateManager.xStreamUpdate()
             return
         elif sFunction == 'updateUrlResolver':
             from resources.lib import updateManager
@@ -150,9 +150,9 @@ def parseUrl():
     # Test if we should run a function on a special site
     if not params.exist('site'):
         xbmc.executebuiltin('XBMC.RunPlugin(%s?function=clearCache)' % sys.argv[0])
-        if cConfig().getSetting('UpdateSetting') != 'Off':
+        if cConfig().getSetting('githubUpdateXstream') == 'true':
             xbmc.executebuiltin('XBMC.RunPlugin(%s?function=updateXstream)' % sys.argv[0])
-        if cConfig().getSetting('UpdateUrlResolver') != 'Off':
+        if cConfig().getSetting('githubUpdateUrlResolver') == 'true':
             xbmc.executebuiltin('XBMC.RunPlugin(%s?function=updateUrlResolver)' % sys.argv[0])
         # As a default if no site was specified, we run the default starting gui with all plugins
         showMainMenu(sFunction)
@@ -241,7 +241,7 @@ def showMainMenu(sFunction):
     if cConfig().getSetting('SettingsFolder') == 'true':
         # Create a gui element for Settingsfolder
         oGuiElement = cGuiElement()
-        oGuiElement.setTitle("Settings")
+        oGuiElement.setTitle(cConfig().getLocalizedString(30041))
         oGuiElement.setSiteName("settings")
         oGuiElement.setFunction("showSettingsFolder")
         oGuiElement.setThumbnail("DefaultAddonService.png")
@@ -254,7 +254,7 @@ def showMainMenu(sFunction):
 def settingsGuiElements():
     # Create a gui element for addon settings
     oGuiElement = cGuiElement()
-    oGuiElement.setTitle("xStream Settings")
+    oGuiElement.setTitle(cConfig().getLocalizedString(30042))
     oGuiElement.setSiteName("xStream")
     oGuiElement.setFunction("display_settings")
     oGuiElement.setThumbnail("DefaultAddonProgram.png")
@@ -262,7 +262,7 @@ def settingsGuiElements():
 
     # Create a gui element for urlresolver settings
     oGuiElement = cGuiElement()
-    oGuiElement.setTitle("Resolver Settings")
+    oGuiElement.setTitle(cConfig().getLocalizedString(30043))
     oGuiElement.setSiteName("urlresolver")
     oGuiElement.setFunction("display_settings")
     oGuiElement.setThumbnail("DefaultAddonRepository.png")
@@ -270,7 +270,7 @@ def settingsGuiElements():
 
     # Create a gui element for metahandler settings
     oGuiElement = cGuiElement()
-    oGuiElement.setTitle("Metahandler Settings")
+    oGuiElement.setTitle(cConfig().getLocalizedString(30044))
     oGuiElement.setSiteName("metahandler")
     oGuiElement.setFunction("display_settings")
     oGuiElement.setThumbnail("DefaultAddonTvInfo.png")
@@ -284,7 +284,7 @@ def settingsGuiElements():
 def globalSearchGuiElement():
     # Create a gui element for global search
     oGuiElement = cGuiElement()
-    oGuiElement.setTitle("Globale Suche")
+    oGuiElement.setTitle(cConfig().getLocalizedString(30040))
     oGuiElement.setSiteName("globalSearch")
     oGuiElement.setFunction("globalSearch")
     oGuiElement.setThumbnail("DefaultAddonWebSkin.png")

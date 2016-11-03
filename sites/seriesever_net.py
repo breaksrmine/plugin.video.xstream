@@ -170,18 +170,32 @@ def showSeries(sUrl=False):
 
 def showFrontPage():
     oParams = ParameterHandler()
-    sPattern = '<div class="box-container">.*?<a href="(.*?)".*?Staffel (.*?) Episode (.*?)".*?src="(http://seriesever.net/uploads/posters/thumb/.*?)".*?alt="(.*?)"'
+    #sPattern = '<div class="box-container">.*?<a href="(.*?)".*?Staffel (.*?) Episode (.*?)".*?src="(http://seriesever.net/uploads/posters/thumb/.*?)".*?alt="(.*?)"'
+    sPattern = '<img[^>]*class="img"[^>]*src="([^"]*)"[^>]*>.*?' # Thumbnail
+    sPattern += '<div[^>]*class="box-title"[^>]*>.*?' #container
+    sPattern += '<a[^>]*class="title"[^>]*title="([^"]+)">.*?' # Title
+    sPattern += '<a[^>]*href="([^"]+)"[^>]*class="seep"[^>]*>([^<]*)<\/' # url, sup-title
 
     # request
     sHtmlContent = __getHtmlContent(URL_MAIN)
+
     # parse content
-    oParser = cParser()
-    aResult = oParser.parse(sHtmlContent, sPattern)
+    isMatch, aResult = cParser.parse(sHtmlContent, sPattern)
 
     oGui = cGui()
-    if (aResult[0] == True):
-        for link, season, episode, img, title in aResult[1]:
-            guiElement = cGuiElement('%s: Season %s - Episode %s' % (title, season, episode), SITE_IDENTIFIER, 'showHosters')
+    if isMatch:
+        for sThumb, sTitle, sUrl, sSubTitle in aResult:
+            season = 'N/A'
+            episode = 'N/A'
+            res = re.search("Staffel ([^ ]+) Episode ([^ ]+)", sSubTitle,re.I)
+            if res:
+            	season = res.group(1)
+            	episode = res.group(2)
+            else:
+            	     	
+            	continue # ignore movies
+            
+            guiElement = cGuiElement('%s: Season %s - Episode %s' % (sTitle, season, episode), SITE_IDENTIFIER, 'showHosters')
             guiElement.setMediaType('episode')
             guiElement.setSeason(season)
 
@@ -191,10 +205,10 @@ def showFrontPage():
             if representsInt(episode):
                 guiElement.setEpisode(episode)
 
-            guiElement.setTVShowTitle(title)
-            guiElement.setThumbnail(img)
+            guiElement.setTVShowTitle(sTitle)
+            guiElement.setThumbnail(sThumb)
 
-            oParams.setParam('sUrl', link)
+            oParams.setParam('sUrl', sUrl)
             oGui.addFolder(guiElement, oParams, bIsFolder=False)
 
     oGui.setView('episodes')

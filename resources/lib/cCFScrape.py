@@ -97,7 +97,8 @@ class cCFScrape:
 
         return number
 
-    def createUrl(self, sUrl, oRequest):
+    @staticmethod
+    def createUrl(sUrl, oRequest):
         parsed_url = urlparse(sUrl)
 
         netloc = parsed_url.netloc[4:] if parsed_url.netloc.startswith('www.') else parsed_url.netloc
